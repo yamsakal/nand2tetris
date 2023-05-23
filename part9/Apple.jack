@@ -1,0 +1,57 @@
+class Apple {
+    field int x;
+    field int y;
+    field int radius;
+
+/** Constructs an apple. */
+ constructor Apple new(int Ax, int Ay) {
+    let x = Ax;
+    let y = Ay;
+    let radius = 3;
+    do draw();
+    return this;
+   }
+
+   /** Disposes this apple. */
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   /** Draws the apple on the screen. */
+   method void draw() {
+      do Screen.setColor(true);
+      do drawcircle();
+      return;
+   }
+
+   /** Erases the apple from the screen. */
+   method void erase() {
+      do Screen.setColor(false);
+      do drawcircle();
+      return;
+   }
+
+    /** Updates the location of the apple on the screen. */
+    method void updateApple(int Ax, int Ay) {
+        let x = Ax;
+        let y = Ay;
+        do draw();
+        return;
+    }
+
+    /** Draws the apple on the screen. */
+    method void drawcircle(){
+        do Screen.drawCircle((x * 8) + 4, (y * 8) + 4, radius);
+        return;
+    }
+
+    /** Returns the value of X */
+    method int getX() {
+        return x;
+    }
+    /** Returns the value of Y */
+    method int getY() {
+        return y;
+    }
+}

@@ -1,0 +1,165 @@
+class Snake {
+
+   field List tail;
+   field List head;
+   field int size;
+
+/** Constructs a new snake. */
+constructor Snake new() {
+
+      let head = List.new(2,1,null);
+      let tail = List.new(3,1,head);
+      do drawHead();
+      return this;
+   }
+   /** Returns the head of the snake. */
+   method List getHead(){
+         return head;
+   }
+
+   /** Returns the tail of the snake. */
+   method List getTail(){
+         return tail;
+   }
+
+   /** Disposes this snake. */
+    method void dispose() {
+        do tail.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Moves the snake up by 1 pixel. */
+    method void moveUp(boolean getBigger) {
+         var int headx;
+         var int heady;
+         let headx = head.getX();
+         let heady = head.getY();
+         do moveTo(headx, heady - 1, getBigger);
+         return;
+    }
+
+    /** Moves the square down by 1 pixels. */
+    method void moveDown(boolean getBigger) {
+         var int headx;
+         var int heady;
+         let headx = head.getX();
+         let heady = head.getY();
+         do moveTo(headx, heady + 1, getBigger);
+         return;
+    }
+
+    /** Moves the square left by 1 pixels. */
+    method void moveLeft(boolean getBigger) {
+         var int headx;
+         var int heady;
+         let headx = head.getX();
+         let heady = head.getY();
+         do moveTo(headx - 1, heady, getBigger);
+         return;
+    }
+
+    /** Moves the square right by 1 pixels. */
+    method void moveRight(boolean getBigger) {
+         var int headx;
+         var int heady;
+         let headx = head.getX();
+         let heady = head.getY();
+         do moveTo(headx + 1, heady, getBigger);
+         return;
+    }
+
+    /** increace the size of the snake. */
+    method void moveTo(int nextX, int nextY, boolean getBigger) {
+         var List list;
+         var List old_tail;
+
+         let list = List.new(nextX,nextY,null);
+         do head.setNext(list);
+         let head = list;
+         do drawHead();
+         if (~(getBigger)) {
+            do drawRemoveTail();
+            let old_tail = tail;
+            let tail = tail.getNext();
+            do old_tail.setNext(null);
+            do old_tail.dispose();
+         }
+         return;
+    }
+    /** Checks if there is collision between snake and apple. */
+    method boolean collision(int x, int y) {
+        var List current;
+        var int currentx;
+        var int currenty;
+        let current = tail;
+        while (~(current = null)) {
+            let currentx = current.getX();
+            let currenty = current.getY();
+            if ((currentx = x) & (currenty = y)) {
+                return true;
+            }
+            let current = current.getNext();
+        }
+        return false;
+    }
+
+    /** Checks if the snake collided with himself. */
+    method boolean selfCollision() {
+        var List current;
+        var int currentx;
+        var int currenty;
+        var int headx;
+        var int heady;
+        var List current_next;
+
+        let headx = head.getX();
+        let heady = head.getY();
+
+        let current = tail;
+        let current_next = current.getNext();
+        while (~(current_next = null)) {
+            let currentx = current.getX();
+            let currenty = current.getY();
+            if ((currentx = headx) & (currenty = heady)) {
+                return true;
+            }
+            let current = current_next;
+            let current_next = current_next.getNext();
+        }
+        return false;
+    }
+
+    /** Checks if the snake collided with the bounderies of the board */
+    method boolean outOfBound() {
+      var int x;
+      var int y;
+      let x = head.getX();
+      let y = head.getY();
+      if ((x > 62 ) | (x < 1) | (y > 30) | (y < 1)) {
+         return true;
+        }
+        return false;
+    }
+
+    /** Draws the head of the snake on the screen. */
+    method void drawHead(){
+         var int headx, heady;
+         let headx = head.getX();
+         let heady = head.getY();
+         do Screen.setColor(true);
+         do Screen.drawRectangle(headx * 8, heady * 8, (headx * 8) + 7, (heady * 8) + 7);
+         return;
+    }
+
+   /** Erase the tail of the snake from the screen. */
+    method void drawRemoveTail(){
+         var int tailx, taily;
+         let tailx = tail.getX();
+         let taily = tail.getY();
+         do Screen.setColor(false);
+         do Screen.drawRectangle(tailx * 8, taily * 8, (tailx * 8) + 7, (taily * 8) + 7);
+         return;
+    }
+
+}

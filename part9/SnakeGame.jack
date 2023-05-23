@@ -1,0 +1,144 @@
+
+
+/**
+ * Implements the Snake game.
+ * In the game - Snake, the player uses the arrow keys to move a "snake" around the board.
+ * As the snake finds apple and catch it, it eats the food, and thereby grows larger.
+ *  The game ends when the snake either moves off the screen or moves into itself.
+ *  The goal is to make the snake as large as possible before that happens.
+ */
+
+class SnakeGame {
+   field Snake snake; // the snake of this game
+   field int direction; // the snake's current direction: 
+                        // 0=none, 1=up, 2=down, 3=left, 4=right
+   field Apple apple;
+   field int score;
+
+    constructor SnakeGame new() {
+      // Creates a 30 by 30 pixels square and positions it at the top-left
+      // of the screen.
+      let snake = Snake.new();
+      let apple = Apple.new(32, 16);
+      let direction = 4;  // initial state is no movement
+      let score = 0;
+      return this;
+   }
+
+   /** Disposes this game. */
+   method void dispose() {
+      do snake.dispose();
+      do Memory.deAlloc(this);
+      do apple.dispose();
+      return;
+   }
+   /** Moves the snake in the current direction. */
+   method void moveSnake() {
+      var boolean ate; // wether we ate an apple last round
+
+      let ate = ateApple();
+      if (direction = 1) { do snake.moveUp(ate); }
+      if (direction = 2) { do snake.moveDown(ate); }
+      if (direction = 3) { do snake.moveLeft(ate); }
+      if (direction = 4) { do snake.moveRight(ate); }
+      do Sys.wait(50);  // delays the next movement
+      return;
+   }
+   /** Runs the game: handles the user's inputs and moves the snake accordingly */
+   method void run() {
+      var char key;  // the key currently pressed by the user
+      var boolean exit;
+      let exit = false;
+      
+      // The game runs untill the snake gets out of bound or encounters a self collision
+      while ((~(snake.outOfBound())) & (~(snake.selfCollision()))) {
+         // waits for a key to be pressed
+         let key = Keyboard.keyPressed();
+
+         //if (key = 81)  { let exit = true; }     // q key
+         if ((key = 131) & (~(direction = 2))) { let direction = 1; }   // up arrow
+         if ((key = 133) & (~(direction = 1))) { let direction = 2; }   // down arrow
+         if ((key = 130) & (~(direction = 4))) { let direction = 3; }   // left arrow
+         if ((key = 132) & (~(direction = 3))) { let direction = 4; }   // right arrow
+         // Otherwise direction stays in its prev possision
+
+         do moveSnake();
+
+     }
+     do gameOver();
+     return;
+   }
+
+   /** Puts new apple when the snake eat it. */
+   method void putAppple() {
+      var int place, appleX,appleY, headx, heady;
+      var List head;
+      let head = snake.getHead();
+      let place = 2;
+      let headx = head.getX();
+      let heady = head.getY();
+
+      // Make sure the apple stays in the board bounds!
+      let appleX = SnakeGame.modulo(headx * place, 56);
+      let appleY = SnakeGame.modulo(heady * place, 24);
+
+      // Making sure that the apple doesn't spawn on the Snake!
+      while(snake.collision(appleX, appleY)){
+         let place = place + 1;
+               // Make sure the apple stays in the board bounds!
+
+         let appleX = SnakeGame.modulo(headx * place, 56);
+         let appleY = SnakeGame.modulo(heady * place, 24);
+      }
+      do apple.updateApple(appleX, appleY);      
+      return;
+   }
+   /** Checks if the snake ate the apple. */
+   method boolean ateApple() {
+      var List head;
+      var int headx, heady, applex, appley;
+      let head = snake.getHead();
+      let applex = apple.getX();
+      let appley = apple.getY();
+      let headx = head.getX();
+      let heady = head.getY();
+      if ((headx = applex) & (heady = appley)){
+         do putAppple();
+         let score = score + 1;
+         return true;
+      }
+      return false;
+   }
+   /** Modulo function. */
+   function int modulo(int x, int y){
+      while (y < x){
+         let x = x - y;
+      }
+      return x;
+   }
+
+   /** Prints game over to the screen */
+   method void gameOver(){
+      var String strGameOver;
+      var String finalScore;
+      var String stars;
+      let strGameOver =   "*   Game Over!  *";
+      let finalScore = "*   Score: ";
+      let stars = "*****************";
+      do Output.printString(stars);
+      do Output.println();
+      do Output.printString(strGameOver);
+      do Output.println(); 
+      do Output.printString(finalScore);
+      do Output.printInt(score);
+      if (score > 9){
+          do Output.printString("   *");
+      }
+      else{
+          do Output.printString("    *");
+      }
+      do Output.println(); 
+      do Output.printString(stars);
+      return;
+   }
+}
